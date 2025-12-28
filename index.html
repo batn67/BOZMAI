@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BOZMAI CASINO v23.0 (REMASTERED)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Montserrat:wght@300;500;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #ffd700;
+        --accent: #ff0055;
+        --bg-dark: #0a0a12;
+        --font-head: 'Cinzel', serif;
+        --font-body: 'Montserrat', sans-serif;
+    }
+
+    * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
+    
+    body {
+        margin: 0; padding: 0; background: #000; font-family: var(--font-body);
+        height: 100vh; width: 100vw; overflow: hidden; color: white;
+        display: flex; justify-content: center; align-items: center;
+    }
+
+    /* BACKGROUND */
+    .bg-anim {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+        background: linear-gradient(-45deg, #0f0518, #2b002b, #1a0000, #000000);
+        background-size: 400% 400%; animation: gradientBG 20s ease infinite;
+    }
+    @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    .particles { position: absolute; top:0; left:0; width:100%; height:100%; background-image: radial-gradient(rgba(255,215,0,0.15) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.4; pointer-events: none; }
+
+    /* UI CONTAINER */
+    .app-container { width: 100%; height: 100%; display: flex; flex-direction: column; position: relative; }
+    .page { display: none; flex-direction: column; width: 100%; height: 100%; padding: 15px; overflow-y: auto; animation: slideIn 0.3s ease-out; }
+    .page.active { display: flex; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* MENU GRID */
+    .menu-section-title {
+        width: 100%; text-align: center; margin: 20px 0 10px 0;
+        color: var(--primary); font-family: var(--font-head);
+        font-size: 18px; border-bottom: 1px solid rgba(255,215,0,0.3);
+        padding-bottom: 5px; text-shadow: 0 2px 5px black;
+    }
+
+    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 900px; margin: 0 auto; width: 100%; }
+    @media (min-width: 768px) { .menu-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    .card {
+        background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.8));
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 10px;
+        text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; aspect-ratio: 1 / 1;
+    }
+    .card:active { transform: scale(0.95); border-color: var(--primary); }
+    .icon { font-size: 28px; margin-bottom: 5px; filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
+    .card-title { font-weight: 800; font-size: 10px; color: #ccc; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* COMPONENTS */
+    .btn {
+        background: linear-gradient(90deg, #d4af37, #b8860b); border: none; padding: 12px; color: #000;
+        border-radius: 8px; font-weight: 900; font-family: var(--font-body); text-transform: uppercase;
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); cursor: pointer; width: 100%; margin-bottom: 5px; font-size: 13px;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+    .btn:active:not(:disabled) { transform: scale(0.96); }
+    .btn-red { background: linear-gradient(90deg, #aa0000, #550000); color: white; box-shadow: 0 0 10px rgba(255,0,0,0.3); }
+    .btn-blue { background: linear-gradient(90deg, #0055aa, #002244); color: white; box-shadow: 0 0 10px rgba(0,100,255,0.3); }
+    .btn-green { background: linear-gradient(90deg, #00aa00, #004400); color: white; box-shadow: 0 0 10px rgba(0,255,0,0.3); }
+    
+    .btn-shop { background: #222; border: 1px solid #444; color: white; box-shadow: none; display: flex; align-items: center; justify-content: space-between; padding: 15px; margin-bottom: 10px; }
+    .btn-shop.owned { border-color: var(--primary); background: rgba(255, 215, 0, 0.1); }
+    
+    .inp { background: rgba(0,0,0,0.5); border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; width: 100%; text-align: center; font-size: 16px; margin-bottom: 10px; font-family: 'Share Tech Mono', monospace; }
+
+    /* GAME UI */
+    .game-blur-bg { flex: 1; background: rgba(15, 15, 20, 0.6); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 5px 0; padding: 10px; position: relative; overflow: hidden; box-shadow: inset 0 0 30px rgba(0,0,0,0.8); }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; }
+    .money-tag { background: #111; border: 1px solid var(--primary); color: var(--primary); padding: 5px 12px; border-radius: 6px; font-weight: bold; font-family: 'Share Tech Mono', monospace; font-size: 16px; min-width: 100px; text-align: center; }
+
+    /* NOTIFICATION */
+    #notif { position: absolute; top: 15%; left: 50%; transform: translateX(-50%) scale(0.8); background: rgba(0,0,0,0.95); border: 1px solid #fff; padding: 10px 20px; border-radius: 30px; z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; white-space: nowrap; font-weight: bold; }
+    #notif.active { opacity: 1; transform: translateX(-50%) scale(1); top: 12%; }
+    .win { border-color: #0f0 !important; color: #0f0; box-shadow: 0 0 15px #0f0; }
+    .lose { border-color: #f00 !important; color: #f00; box-shadow: 0 0 15px #f00; }
+
+    /* STYLES */
+    .bozmai-title { font-family: var(--font-head); font-size: 42px; text-align: center; background: linear-gradient(180deg, #0088ff, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(0,136,255,0.5)); animation: titlePulse 3s infinite alternate; }
+    @keyframes titlePulse { from { filter: drop-shadow(0 0 10px rgba(0,136,255,0.5)); } to { filter: drop-shadow(0 0 25px rgba(0,136,255,0.9)); } }
+    .xp-container { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 5px; position: relative; overflow: hidden; }
+    .xp-bar { height: 100%; background: linear-gradient(90deg, #00ffaa, #0088ff); width: 0%; transition: width 0.5s; }
+    .level-txt { font-size: 12px; color: #aaa; margin-top: 4px; display: flex; justify-content: space-between; font-weight:bold; }
+
+    /* NAME COLORS */
+    .txt-def { color: white; }
+    .txt-blue { color: #00ccff; text-shadow: 0 0 5px #00ccff; }
+    .txt-red { color: #ff3333; text-shadow: 0 0 5px #ff0000; }
+    .txt-neon { color: #ff00ff; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+    .txt-gold { color: #ffd700; background: linear-gradient(to bottom, #ffd700, #b8860b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; filter: drop-shadow(0 0 5px gold); }
+    .txt-vip-yellow { background: linear-gradient(90deg, #ffd700, #fce205, #e1ad01, #ffd700); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight:900; animation: yellowShift 2s linear infinite; text-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+    @keyframes yellowShift { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+
+    /* BANKA & KASA */
+    .bank-card { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); border: 2px solid gold; border-radius: 15px; padding: 20px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+    .bank-logo { font-size: 40px; margin-bottom: 10px; }
+    .bank-title { font-family: 'Cinzel', serif; font-size: 24px; font-weight: 900; text-shadow: 0 2px 2px black; }
+    .bank-slogan { font-size: 10px; color: rgba(255,255,255,0.8); font-style: italic; letter-spacing: 2px; margin-bottom: 20px; }
+    .bank-stat { background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; margin-bottom: 5px; display: flex; justify-content: space-between; }
+    
+    .case-window { width: 100%; height: 120px; background: #222; border: 4px solid #444; border-radius: 10px; overflow: hidden; position: relative; box-shadow: inset 0 0 30px #000; }
+    .case-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: gold; z-index: 10; transform: translateX(-50%); box-shadow: 0 0 10px gold; }
+    .case-strip { display: flex; height: 100%; position: absolute; left: 0; transition: transform 5s cubic-bezier(0.1, 0.9, 0.2, 1); will-change: transform; }
+    .case-item { width: 100px; height: 100%; border-right: 1px solid #333; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; position: relative; }
+    .item-2x { background: linear-gradient(to bottom, #0044aa, #002244); color: #00ccff; border-bottom: 4px solid #00ccff; }
+    .item-3x { background: linear-gradient(to bottom, #aa00aa, #440044); color: #ff00ff; border-bottom: 4px solid #ff00ff; }
+    .item-empty { background: linear-gradient(to bottom, #444, #222); color: #888; border-bottom: 4px solid #666; }
+    .item-bad { background: linear-gradient(to bottom, #550000, #220000); color: #ff5555; border-bottom: 4px solid red; }
+
+    /* SILAH & DİĞER OYUNLAR */
+    .fps-gun { position: absolute; bottom: -30px; right: 20%; width: 250px; height: 250px; pointer-events: none; z-index: 10; font-size: 150px; transform: rotate(-10deg); filter: drop-shadow(0 0 10px #000); transition: transform 0.1s; }
+    .shoot-anim { animation: gunRecoil 0.1s; }
+    @keyframes gunRecoil { 0% { transform: rotate(-10deg) translateY(0); } 50% { transform: rotate(-5deg) translateY(20px); } 100% { transform: rotate(-10deg) translateY(0); } }
+    .float-dmg { position: absolute; color: #0f0; font-weight: bold; font-size: 20px; animation: floatUp 1s ease-out forwards; pointer-events: none; text-shadow: 0 0 5px black; }
+    @keyframes floatUp { to { transform: translateY(-50px); opacity: 0; } }
+
+    .arena { width: 100%; height: 200px; position: relative; display:flex; justify-content:center; align-items:flex-end; padding-bottom:20px; overflow:hidden;}
+    .rooster { font-size: 60px; position: absolute; transition: transform 0.1s; bottom: 20px; }
+    #rooster-blue { left: 20%; transform: scaleX(1); color: #00ccff; filter: drop-shadow(0 0 5px blue); }
+    #rooster-red { right: 20%; transform: scaleX(-1); color: #ff3333; filter: drop-shadow(0 0 5px red); }
+    .fight-anim-blue { animation: fightBlue 0.5s infinite; }
+    .fight-anim-red { animation: fightRed 0.5s infinite; }
+    @keyframes fightBlue { 0% { left: 20%; } 50% { left: 40%; transform: rotate(10deg); } 100% { left: 20%; } }
+    @keyframes fightRed { 0% { right: 20%; transform: scaleX(-1); } 50% { right: 40%; transform: scaleX(-1) rotate(-10deg); } 100% { right: 20%; transform: scaleX(-1); } }
+
+    .water-bg { width:100%; height:100%; background: linear-gradient(to bottom, #87CEEB, #0077be); position:relative; overflow:hidden; border-radius:10px; cursor: pointer; }
+    .stone { font-size: 20px; position: absolute; bottom: 20px; left: 10px; transition: all 0.5s ease-out; z-index:5; }
+    .ripple { position: absolute; width: 40px; height: 10px; background: rgba(255,255,255,0.5); border-radius: 50%; transform: translate(-50%, -50%) scale(0); animation: rippleEffect 1s linear; }
+    @keyframes rippleEffect { to { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
+    #stone-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); color:white; display:flex; justify-content:center; align-items:center; font-weight:bold; font-size:18px; z-index:20; pointer-events:none; }
+
+    .shooter-area { width:100%; height:100%; position:relative; background: radial-gradient(circle, #333, #000); border:2px solid #333; cursor: crosshair; overflow:hidden; }
+    .target-enemy { position:absolute; font-size:40px; transition:0.2s; cursor:pointer; animation: enemyBob 1s infinite alternate; filter: drop-shadow(0 0 10px red); }
+    @keyframes enemyBob { from { transform:translateY(0); } to { transform:translateY(-10px); } }
+
+    .rocket-container { width: 100%; height: 100%; position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; }
+    .rocket-obj { font-size: 40px; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); transition: bottom 0.1s linear; }
+    .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 100%; max-width: 300px; }
+    .mine-tile { background: #333; aspect-ratio: 1; border-radius: 5px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 20px; border: 1px solid #555; }
+    .mine-tile.open { background: #222; box-shadow: inset 0 0 5px #000; }
+    
+    .scratch-card { height:100px; background: linear-gradient(45deg, #ccc, #eee); border-radius:10px; display:flex; justify-content:center; align-items:center; cursor:pointer; font-weight:bold; color:transparent; user-select:none; position:relative; overflow:hidden; border:2px solid #fff; }
+    .scratch-card::after { content: "???"; color: #333; font-size:30px; position:absolute; }
+    .scratch-card.scratched { background: #222; color: #fff; border-color:var(--primary); }
+    .scratch-card.scratched::after { content: ""; }
+    
+    .track-lane { width: 100%; height: 40px; border-bottom: 1px dashed #555; position: relative; display: flex; align-items: center; }
+    .track-horse { font-size: 24px; position: absolute; left: 0; transition: left 0.5s linear; }
+    .bonanza-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; width: 100%; max-width: 320px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 10px; border: 2px solid #ff00cc; }
+    .bonanza-cell { aspect-ratio: 1; background: rgba(255,255,255,0.1); border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 22px; animation: dropIn 0.3s ease-out; }
+    @keyframes dropIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .cup-container { display: flex; justify-content: center; gap: 40px; position: relative; height: 150px; width: 100%; align-items: flex-end; padding-bottom: 20px; }
+    .cup { font-size: 60px; cursor: pointer; transition: all 0.3s; position: relative; bottom: 0; z-index: 10; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.5)); width: 70px; text-align: center; }
+    .cup.up { transform: translateY(-40px); }
+    .cup-ball { font-size: 30px; position: absolute; bottom: 25px; z-index: 5; opacity: 0; transition: all 0.3s; }
+    
+    .leaderboard-container { width: 100%; max-width: 600px; margin: 0 auto; }
+    .leaderboard-item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid transparent; }
+    .leaderboard-item.you { border-left-color: var(--primary); background: rgba(255,215,0,0.1); }
+    
+    /* RULET DÜZELTME */
+    .roulette-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; }
+    .roulette-wheel-container { position: relative; width: 280px; height: 280px; margin-bottom: 20px; }
+    .roulette-wheel { width: 100%; height: 100%; border-radius: 50%; position: relative; background: #006400; border: 8px solid #553311; box-shadow: 0 0 30px rgba(0,0,0,0.9); overflow: hidden; transform: rotate(0deg); }
+    .roulette-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: linear-gradient(135deg, #b8860b, #ffd700); border-radius: 50%; border: 3px solid #fff; z-index: 5; display: flex; align-items: center; justify-content: center; font-weight: bold; color: black; font-size: 10px; text-align: center; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
+    .roulette-number { position: absolute; width: 30px; height: 140px; left: 50%; top: 0; margin-left: -15px; transform-origin: 50% 100%; display: flex; justify-content: center; padding-top: 10px; font-weight: bold; font-size: 12px; color: white; z-index: 1; text-shadow: 1px 1px 0 #000; }
+    .roulette-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #ffd700; z-index: 20; filter: drop-shadow(0 0 5px black); }
+    .roulette-table { display: grid; grid-template-columns: repeat(13, 1fr); gap: 3px; width: 100%; background: #004400; padding: 10px; border-radius: 10px; border: 2px solid #fff; margin-top: 10px;}
+    .roulette-table-number { aspect-ratio: 1; background: #222; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 11px; color: white; cursor: pointer; border: 1px solid #444; }
+    .roulette-table-number.red { background: #d00; }
+    .roulette-table-number.black { background: #111; }
+    .roulette-table-number.green { background: #090; }
+    .roulette-bets { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
+    .roulette-bet-btn { padding: 8px 12px; background: #333; border-radius: 4px; cursor: pointer; font-size: 10px; text-align: center; border: 1px solid #555; flex: 1; min-width: 60px; }
+
+    /* IDDIA */
+    .bet-match { background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+    .bet-teams { flex: 1; font-size: 12px; font-weight: bold; }
+    .bet-odds { display: flex; gap: 5px; }
+    .bet-odd-btn { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; min-width: 40px; text-align: center; }
+    .coupon-card { background: #222; border: 2px solid gold; border-radius: 10px; padding: 10px; margin-top: 10px; }
+    .rps-choices { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+    .rps-choice { font-size: 40px; cursor: pointer; transition: 0.2s; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.1); }
+    .rps-countdown { font-size: 40px; color: #ff0055; font-weight: 900; animation: pulse 1s infinite; }
+
+</style>
+</head>
+<body>
+
+<div class="bg-anim"></div>
+<div class="particles"></div>
+
+<div class="app-container">
+    <div id="p-login" class="page active" style="justify-content: center; align-items: center;">
+        <h1 class="bozmai-title">BOZMAI<br><span style="font-size:16px; letter-spacing:5px; color:#fff; -webkit-text-fill-color:white; font-family:var(--font-body);">CASINO v23.0</span></h1>
+        <div style="width: 100%; max-width: 300px; margin-top: 30px;">
+            <input type="text" id="u-name" class="inp" placeholder="KULLANICI ADI" maxlength="12">
+            <input type="password" id="u-pass" class="inp" placeholder="ŞİFRE" maxlength="12">
+            
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-blue" onclick="sys.auth('login')">GİRİŞ YAP</button>
+                <button class="btn btn-green" onclick="sys.auth('register')">KAYIT OL</button>
+            </div>
+            <div id="login-msg" style="margin-top:10px; font-size:12px; color:red; text-align:center;"></div>
+            <div style="color: yellow; font-size: 10px; margin-top: 15px; text-align: center; width: 100%;">
+                Sadece oyun parasıyla, eğlence amaçlı bir simülasyon oyunu!
+            </div>
+        </div>
+    </div>
+
+    <div id="p-menu" class="page">
+        <div class="top-bar">
+            <div>
+                <div id="d-name" style="font-weight: 800; font-size:24px; letter-spacing:1px;">Misafir</div>
+                <div style="font-size: 11px; opacity: 0.6; color:white;">ID: <span id="d-id">---</span></div>
+                <div class="xp-container">
+                    <div class="xp-bar" id="xp-fill"></div>
+                </div>
+                <div class="level-txt"><span id="lvl-num">LVL 1</span><span id="lvl-title">Çaylak</span></div>
+            </div>
+         
+            <div style="text-align:right;">
+                <div class="money-tag"><span id="d-money">0</span> DİNAR</div>
+                <div id="potion-badge" style="display:none; font-size:10px; color:#0f0; margin-top:2px;">🧪 İKSİR AKTİF</div>
+                <div id="vip-badge" style="display:none; font-size:10px; margin-top:2px;"></div>
+            </div>
+        </div>
+
+        <div class="menu-section-title">KUMARHANE OYUNLARI</div>
+        <div class="menu-grid">
+            <div class="card" onclick="sys.nav('p-bank')"><div class="icon">🏦</div><div class="card-title">BANKA</div></div>
+            <div class="card" onclick="sys.nav('p-betting')"><div class="icon" style="color:#0f0;">⚽</div><div class="card-title" style="color:#0f0;">İDDİA</div></div>
+            <div class="card" onclick="sys.game('case')"><div class="icon">📦</div><div class="card-title">KASA AÇ</div></div>
+            <div class="card" onclick="sys.game('roulette')"><div class="icon" style="color:#ff5555;">🎡</div><div class="card-title" style="color:#ff5555;">RULET</div></div>
+            <div class="card" onclick="sys.game('cockfight')"><div class="icon">🐓</div><div class="card-title">HOROZ DÖVÜŞÜ</div></div>
+            <div class="card" onclick="sys.game('stone')"><div class="icon">🪨</div><div class="card-title">TAŞ SEKTİRME</div></div>
+            <div class="card" onclick="sys.game('rocket')"><div class="icon">🚀</div><div class="card-title">ROKET</div></div>
+            <div class="card" onclick="sys.game('cup')"><div class="icon">🥤</div><div class="card-title">BARDAK</div></div>
+            <div class="card" onclick="sys.game('mines')"><div class="icon">💣</div><div class="card-title">MAYINLAR</div></div>
+            <div class="card" onclick="sys.game('sweet')"><div class="icon">🍭</div><div class="card-title">BONANZA</div></div>
+            <div class="card" onclick="sys.game('horse')"><div class="icon">🐎</div><div class="card-title">AT YARIŞI</div></div>
+            <div class="card" onclick="sys.game('penalty')"><div class="icon">⚽</div><div class="card-title">PENALTI</div></div>
+            <div class="card" onclick="sys.game('slot')"><div class="icon">🎰</div><div class="card-title">SLOT</div></div>
+            <div class="card" onclick="sys.game('dice')"><div class="icon">🎲</div><div class="card-title">ZAR</div></div>
+            <div class="card" onclick="sys.game('rps')"><div class="icon">✂️</div><div class="card-title">TAŞ KAĞIT</div></div>
+            <div class="card" onclick="sys.game('scratch')"><div class="icon">🪙</div><div class="card-title">KAZI KAZAN</div></div>
+            <div class="card" onclick="sys.nav('p-shop')"><div class="icon" style="color:var(--accent);">🛒</div><div class="card-title" style="color:var(--accent);">MAĞAZA</div></div>
+            <div class="card" onclick="sys.nav('p-leaderboard')"><div class="icon" style="color:#00ccff;">🏆</div><div class="card-title" style="color:#00ccff;">LİDERLER</div></div>
+            <div class="card" onclick="sys.nav('p-settings')"><div class="icon">⚙️</div><div class="card-title">AYARLAR</div></div>
+        </div>
+        
+        <div class="menu-section-title" style="margin-top: 30px; color: #0f0;">PARA KASMA BÖLÜMÜ (FARM)</div>
+        <div class="menu-grid" style="padding-bottom: 60px;">
+            <div class="card" onclick="sys.game('shooter')"><div class="icon">🔫</div><div class="card-title">SİLAH OYUNU</div></div>
+            <div class="card" onclick="sys.game('clicker')"><div class="icon" style="color:#0f0;">👆</div><div class="card-title" style="color:#0f0;">TIKLA KAZAN</div></div>
+        </div>
+
+    </div>
+    
+    <div id="p-bank" class="page">
+        <div class="top-bar">
+            <button class="btn" style="width: 40px; padding: 5px; margin:0;" onclick="sys.nav('p-menu')">↩</button>
+            <span style="color:gold; font-weight:bold;">KOYUNCUK BANK</span>
+            <div class="money-tag"><span id="bank-money">0</span> DİNAR</div>
+        </div>
+        
+        <div class="bank-card">
+            <div class="bank-logo">🐑</div>
+            <div class="bank-title">KOYUNCUK BANK</div>
+            <div class="bank-slogan">"herkese koyuyoruz!"</div>
+            
+            <div class="bank-stat">
+                <span>MEVCUT BORÇ:</span>
+                <span id="bank-debt" style="color:red; font-weight:bold;">0 DİNAR</span>
+            </div>
+            <div class="bank-stat">
+                <span>KREDİ LİMİTİ:</span>
+                <span id="bank-limit" style="color:gold;">50000 DİNAR</span>
+            </div>
+             <div class="bank-stat">
+                <span>SON ÖDEME:</span>
+                <span id="bank-date" style="color:white;">-</span>
+            </div>
+        </div>
+
+        <h3 style="color:gold; border-bottom:1px solid #333;">KREDİ İŞLEMLERİ</h3>
+        <input type="number" id="bank-inp" class="inp" placeholder="Miktar Giriniz">
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-green" onclick="sys.logic.bankTake()">KREDİ ÇEK (%20 FAİZ)</button>
+            <button class="btn btn-blue" onclick="sys.logic.bankPay()">BORÇ ÖDE</button>
+        </div>
+        <div style="font-size:11px; color:#aaa; margin-top:10px; text-align:center;">
+            DİKKAT: Borcunu 5 dakika içinde ödemezsen paran silinir, tekrar ödemezsen bankadan banlanırsın!
+        </div>
+    </div>
+
+    <div id="p-betting" class="page">
+        <div class="top-bar">
+            <button class="btn" style="width: 40px; padding: 5px; margin:0;" onclick="sys.nav('p-menu')">↩</button>
+            <span style="color:var(--primary); font-weight:bold;">CANLI İDDİA</span>
+            <div class="money-tag"><span id="b-money">0</span> DİNAR</div>
+        </div>
+        <div style="text-align:center; font-size:10px; color:#aaa; margin-bottom:10px;">SÜPER LİG & PREMIER LİG</div>
+        <div id="match-list" style="margin-bottom: 20px;"></div>
+        <div class="coupon-card">
+            <div style="text-align:center; border-bottom:1px solid #444; margin-bottom:5px;">KUPONUN</div>
+            <div id="coupon-items" style="font-size:12px; margin-bottom:10px;">Maç seçilmedi.</div>
+            <div style="display:flex; justify-content:space-between; font-weight:bold; color:gold;">
+                <span>ORAN: <span id="c-odd">0.00</span></span>
+                <span>KAZANÇ: <span id="c-win">0</span> DİNAR</span>
+            </div>
+            <input type="number" id="c-bet" class="inp" placeholder="Yatırılacak Tutar" style="margin-top:5px;" value="100" oninput="sys.logic.updateCoupon()">
+            <button class="btn btn-green" onclick="sys.logic.placeBet()">OYNA VE SONUÇLANDIR</button>
+        </div>
+    </div>
+
+    <div id="p-leaderboard" class="page">
+        <div class="top-bar">
+            <button class="btn" style="width: 40px; padding: 5px; margin:0;" onclick="sys.nav('p-menu')">↩</button>
+            <span style="color:var(--primary); font-weight:bold;">LİDER TABLOSU</span>
+            <div class="money-tag"><span id="lb-money">0</span> DİNAR</div>
+        </div>
+        <div style="font-size:10px; color:#aaa; text-align:center; margin-bottom:10px;">HERKES 0 DİNAR İLE BAŞLADI - YARIŞ BAŞLASIN!</div>
+        <div class="leaderboard-container" id="leaderboard-list"></div>
+        <button class="btn" style="margin-top: 10px;" onclick="sys.updateLeaderboard()">YENİLE</button>
+    </div>
+
+    <div id="p-shop" class="page">
+        <div class="top-bar">
+            <button class="btn" style="width: 40px; padding: 5px; margin:0;" onclick="sys.nav('p-menu')">↩</button>
+            <span style="color:var(--primary); font-weight:bold;">MAĞAZA</span>
+            <div class="money-tag"><span id="s-money">0</span> DİNAR</div>
+        </div>
+        <div id="shop-list"></div>
+    </div>
+
+    <div id="p-game" class="page">
+        <div class="top-bar">
+            <button class="btn" style="width: 40px; padding: 5px; margin: 0; background: #333; color: white;" onclick="sys.nav('p-menu')">↩</button>
+            <div id="g-title" style="font-family: var(--font-head); font-size: 16px; color: var(--primary);">OYUN</div>
+            <div class="money-tag"><span id="g-money">0</span> DİNAR</div>
+        </div>
+
+        <div id="game-stage" class="game-blur-bg"></div>
+
+        <div id="bet-controls" style="margin-top: auto;">
+            <div id="std-bet-ui">
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <button class="btn btn-blue" style="flex:1; padding:8px;" onclick="sys.modBet(-50)">-50</button>
+                    <input type="number" id="bet-inp" class="inp" style="width: 80px; margin:0; font-weight:bold;" value="100">
+                    <button class="btn btn-blue" style="flex:1; padding:8px;" onclick="sys.modBet(50)">+50</button>
+                </div>
+                <button id="btn-action" class="btn" onclick="sys.action()">BAŞLAT</button>
+            </div>
+            <div id="scratch-controls" style="display:none; width:100%;">
+                <button class="btn btn-green" onclick="sys.logic.setupScratch()">YENİ KART (50 DİNAR)</button>
+            </div>
+            <div id="horse-controls" style="display:none; width:100%;">
+                <div style="font-size:12px; color:#aaa; text-align:center; margin-bottom:5px;">FAVORİ ATINI SEÇ:</div>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn" onclick="sys.logic.selHorse(1)" id="h-btn-1">1</button>
+                    <button class="btn" onclick="sys.logic.selHorse(2)" id="h-btn-2">2</button>
+                    <button class="btn" onclick="sys.logic.selHorse(3)" id="h-btn-3">3</button>
+                    <button class="btn" onclick="sys.logic.selHorse(4)" id="h-btn-4">4</button>
+                </div>
+            </div>
+            <div id="roulette-controls" style="display:none; width:100%;">
+                <div style="font-size:12px; color:#aaa; text-align:center; margin-bottom:5px;">SEÇİLİ BAHİS: <span id="roulette-bet-type">TEK SAYI</span></div>
+                <div style="display:flex; gap:5px;">
+                    <button class="btn btn-red" onclick="sys.logic.rouletteClear()">TEMİZLE</button>
+                    <button class="btn btn-green" onclick="sys.logic.rouletteSpin()">DÖNDÜR</button>
+                </div>
+            </div>
+             <div id="cockfight-controls" style="display:none; width:100%;">
+                <div style="font-size:12px; color:#aaa; text-align:center; margin-bottom:5px;">HANGİSİ KAZANIR?</div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-blue" onclick="sys.logic.cockStart('blue')">MAVİ (2.8x)</button>
+                    <button class="btn btn-red" onclick="sys.logic.cockStart('red')">KIRMIZI (2.8x)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="p-settings" class="page">
+        <div class="top-bar"><button class="btn" style="width: 40px;" onclick="sys.nav('p-menu')">↩</button><span>AYARLAR</span></div>
+        <h3 style="color:var(--primary); border-bottom:1px solid #333;">GENEL</h3>
+        <button class="btn btn-blue" id="btn-music" onclick="audio.toggle()">MÜZİK BAŞLAT (TIKLA) 🔇</button>
+        <button class="btn btn-blue" onclick="sys.toggleFull()">TAM EKRAN (AÇ/KAPA)</button>
+        <h3 style="color:var(--primary); border-bottom:1px solid #333; margin-top:20px;">KOD GİR</h3>
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+            <input type="text" id="code-inp" class="inp" placeholder="KOD..." style="text-transform: uppercase;">
+            <button class="btn" onclick="sys.redeem()">KULLAN</button>
+        </div>
+        <h3 style="color:red; border-bottom:1px solid #333; margin-top:20px;">TEHLİKELİ BÖLGE</h3>
+        <button class="btn btn-red" onclick="if(confirm('Hesabını silmek istediğine emin misin?')) { localStorage.removeItem('bozmai_users'); location.reload(); }">HESABI SİL</button>
+        <button class="btn btn-red" style="margin-top:20px;" onclick="location.reload()">ÇIKIŞ YAP</button>
+    </div>
+
+    <div id="notif">Bildirim</div>
+</div>
+
+<script>
+    /* --- SES SİSTEMİ --- */
+    const audio = {
+        ctx: null, isPlaying: false, interval: null,
+        init: function() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+        toggle: function() {
+            this.init(); this.isPlaying = !this.isPlaying;
+            document.getElementById('btn-music').innerText = this.isPlaying ? "MÜZİK: ÇALIYOR 🔊" : "MÜZİK: DURDURULDU 🔇";
+            if(this.isPlaying) this.startLoop(); else this.stopLoop();
+        },
+        startLoop: function() {
+            if(this.interval) clearInterval(this.interval);
+            let note = 0; const notes = [261.6, 329.6, 392.0, 523.2]; 
+            this.interval = setInterval(() => { if(this.isPlaying) { this.playTone(notes[note % 4], 'sine', 0.05, 0.3); note++; } }, 500);
+        },
+        stopLoop: function() { clearInterval(this.interval); },
+        playTone: function(freq, type, vol, dur) {
+            if(!this.ctx) return;
+            const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            o.type = type; o.frequency.value = freq;
+            o.connect(g); g.connect(this.ctx.destination);
+            g.gain.setValueAtTime(vol, this.ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+            o.start(); o.stop(this.ctx.currentTime + dur);
+        },
+        sfx: function(name) {
+            if(!this.ctx) this.init();
+            if(name==='win') { this.playTone(523.2, 'square', 0.1, 0.1); setTimeout(()=>this.playTone(659.2, 'square', 0.1, 0.2), 100); }
+            else if(name==='lose') { this.playTone(150, 'sawtooth', 0.1, 0.4); }
+            else if(name==='click') { this.playTone(800, 'sine', 0.05, 0.05); }
+            else if(name==='buy') { this.playTone(1200, 'sine', 0.1, 0.1); }
+            else if(name==='gun') { this.playTone(100, 'square', 0.1, 0.05); }
+        }
+    };
+    /* --- BOT SİSTEMİ (RASTGELE) --- */
+    const randomNames = ["Ahmet", "Mehmet", "Ayşe", "Fatma", "Can", "Mert", "Zeynep", "Elif", "Burak", "Selin", "Kaan", "Cem", "Deniz", "Ege", "Bora", "Emre", "Seda", "Gizem", "Ozan", "Yiğit"];
+    let bots = [];
+    
+    function initBots() {
+        bots = [];
+        // 10 Rastgele bot oluştur
+        for(let i=0; i<10; i++) {
+            const name = randomNames[Math.floor(Math.random() * randomNames.length)];
+            const style = ["txt-def", "txt-blue", "txt-red", "txt-gold"][Math.floor(Math.random() * 4)];
+            bots.push({ name: name, money: Math.random() * 5000, level: Math.floor(Math.random() * 50) + 1, style: style });
+        }
+    }
+    initBots();
+
+    /* --- SİSTEM & SAVE --- */
+    const sys = {
+        user: null, isLocked: false, xpTimer: null, botTimer: null,
+        shopItems: [
+            { id: 'style_blue', name: 'MAVİ İSİM', price: 5000, type: 'style', class: 'txt-blue' },
+            { id: 'style_red', name: 'KIRMIZI İSİM', price: 10000, type: 'style', class: 'txt-red' },
+            { id: 'style_neon', name: 'NEON PEMBE', price: 50000, type: 'style', class: 'txt-neon' },
+            { id: 'style_fire', name: '🔥 ALEV EFEKTİ', price: 200000, type: 'style', class: 'txt-fire' },
+            { id: 'style_rgb', name: '🌈 RGB MASTER', price: 700000, type: 'style', class: 'txt-rgb' },
+            { id: 'style_gold', name: '👑 ALTIN KRAL', price: 1000000, type: 'style', class: 'txt-gold' },
+            { id: 'style_hacker', name: '👨‍💻 HACKER TAGI', price: 50000000, type: 'style', class: 'txt-hacker' },
+            { id: 'style_vip', name: '👑 VİP TAGI (KOD: VİP23)', price: 0, type: 'style', class: 'txt-vip', codeOnly: true },
+            { id: 'style_admin', name: '🚨 ADMİN TAGI', price: 10000000, type: 'style', class: 'txt-admin' }
+        ],
+        matches: [], coupon: [],
+        auth: function(type) {
+            const name = document.getElementById('u-name').value.trim();
+            const pass = document.getElementById('u-pass').value.trim();
+            const msg = document.getElementById('login-msg');
+            if(name.length < 3 || pass.length < 3) { msg.innerText = "İsim ve şifre en az 3 hane olmalı!"; return; }
+
+            let db = JSON.parse(localStorage.getItem('bozmai_users')) || {};
+            if(type === 'register') {
+                if(db[name]) { msg.innerText = "Bu isim alınmış!"; return; }
+                const now = Date.now();
+                db[name] = {
+                    name: name, pass: pass, money: 0, id: Math.floor(Math.random()*9000)+1000,
+                    codes: [], inventory: ['style_def'], activeStyle: 'style_def', hasPotion: false,
+                    xp: 0, level: 1, isVip: false, vipExpiry: 0,
+                    vipType: 'normal',
+                    bank: { debt: 0, limit: 50000, due: 0, banned: false }
+                };
+                localStorage.setItem('bozmai_users', JSON.stringify(db));
+                msg.innerText = "Kayıt Başarılı! Şimdi Giriş Yapın."; msg.style.color = "#0f0";
+            } 
+            else if (type === 'login') {
+                if(!db[name]) { msg.innerText = "Kullanıcı bulunamadı!"; return; }
+                if(db[name].pass !== pass) { msg.innerText = "Şifre yanlış!"; return; }
+                this.user = db[name];
+                // Düzeltmeler
+                if(!this.user.xp) { this.user.xp = 0; this.user.level = 1; } 
+                if(!this.user.isVip) { this.user.isVip = false; this.user.vipExpiry = 0; }
+                if(!this.user.vipType) this.user.vipType = 'normal';
+                if(!this.user.bank) this.user.bank = { debt: 0, limit: 50000, due: 0, banned: false };
+                if(this.user.vipExpiry && Date.now() > this.user.vipExpiry) {
+                    this.user.isVip = false; this.user.activeStyle = 'style_def';
+                }
+                
+                this.logic.checkBankStatus();
+                this.save();
+                audio.init(); audio.sfx('win');
+                this.updateUI(); this.nav('p-menu');
+                this.logic.generateMatches();
+                
+                if(this.xpTimer) clearInterval(this.xpTimer);
+                this.xpTimer = setInterval(()=>{ this.addXp(2); }, 10000);
+                if(this.botTimer) clearInterval(this.botTimer);
+                this.botTimer = setInterval(()=>{ this.updateBots(); }, 30000);
+            }
+        },
+        save: function() {
+            if(!this.user) return;
+            let db = JSON.parse(localStorage.getItem('bozmai_users')) || {};
+            db[this.user.name] = this.user;
+            localStorage.setItem('bozmai_users', JSON.stringify(db));
+        },
+        addXp: function(amount) {
+            if(!this.user) return;
+            this.user.xp += amount;
+            const nextLvl = this.user.level * 100;
+            if(this.user.xp >= nextLvl) {
+                this.user.level++;
+                this.user.xp = 0;
+                this.user.money += 1000;
+                this.notif(`SEVİYE ATLADIN! LVL ${this.user.level} (+1000 DİNAR)`, "win");
+                audio.sfx('win');
+            }
+            this.updateUI();
+        },
+        getLevelTitle: function(lvl) {
+            if(lvl < 10) return "Çaylak";
+            if(lvl < 20) return "Acemi Kumarbaz";
+            if(lvl < 50) return "Mini Kumarbaz";
+            if(lvl < 80) return "Profesyonel";
+            if(lvl < 100) return "Kumarbaz Kral";
+            return "BOZMAI EFSANESİ";
+        },
+        updateBots: function() {
+            bots.forEach(bot => {
+                if(Math.random() > 0.3) {
+                     const gain = Math.floor(Math.random() * 5000) + 500;
+                     bot.money += gain;
+                } else {
+                     const loss = Math.floor(Math.random() * 2000);
+                     bot.money = Math.max(0, bot.money - loss);
+                }
+                 if(Math.random() > 0.8) bot.level += 1;
+            });
+            if(document.getElementById('p-leaderboard').classList.contains('active')) {
+                this.updateLeaderboard();
+            }
+        },
+        updateLeaderboard: function() {
+            const list = document.getElementById('leaderboard-list');
+            if(!list) return;
+            let allPlayers = [...bots];
+            if(this.user) {
+                allPlayers.push({
+                    name: this.user.name,
+                    money: this.user.money,
+                    level: this.user.level,
+                    style: this.user.isVip ? 'txt-rgb' : this.user.activeStyle,
+                    isUser: true, isVip: this.user.isVip
+                });
+            }
+            allPlayers.sort((a, b) => b.money - a.money);
+            list.innerHTML = '';
+            allPlayers.forEach((player, index) => {
+                const div = document.createElement('div');
+                div.className = `leaderboard-item ${player.isUser ? 'you' : ''}`;
+                let displayName = player.name;
+                if(player.isVip && player.isUser) displayName = "VİP " + player.name;
+                else if (player.isVip) displayName += " 👑";
+                
+                div.innerHTML = `
+                    <div class="rank">${index + 1}</div>
+                    <div class="leader-name ${player.style || ''}">${displayName}</div>
+                    <div class="leader-money">${Math.floor(player.money).toLocaleString()} DİNAR</div>
+                    <div style="font-size:10px; color:#aaa;">LVL ${player.level}</div>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('lb-money').innerText = this.user ? Math.floor(this.user.money).toLocaleString() : "0";
+        },
+        nav: function(page) {
+            sys.isLocked = false;
+            if(document.getElementById('btn-action')) document.getElementById('btn-action').disabled = false;
+            
+            audio.sfx('click');
+            document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+            
+            if(page === 'p-game') {
+                document.getElementById('std-bet-ui').style.display = 'block';
+                document.getElementById('scratch-controls').style.display = 'none';
+                document.getElementById('horse-controls').style.display = 'none';
+                document.getElementById('roulette-controls').style.display = 'none';
+                document.getElementById('cockfight-controls').style.display = 'none';
+                document.getElementById('btn-action').style.display = 'block';
+                document.getElementById('bet-inp').disabled = false;
+                document.getElementById('game-stage').style.overflow = "hidden";
+            }
+            if(page === 'p-betting') this.logic.renderMatches();
+            if(page === 'p-bank') this.logic.updateBankUI();
+            if(page === 'p-shop') this.renderShop();
+            if(page === 'p-leaderboard') this.updateLeaderboard();
+        },
+        toggleFull: function() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        },
+        updateUI: function() {
+            if(!this.user) return;
+            ['d-money','g-money','s-money','b-money','bank-money'].forEach(i=>{
+                const el = document.getElementById(i);
+                if(el) el.innerText = Math.floor(this.user.money).toLocaleString();
+            });
+            const nameEl = document.getElementById('d-name');
+            nameEl.className = '';
+            
+            const now = Date.now();
+            if(this.user.isVip && this.user.vipExpiry && now > this.user.vipExpiry) {
+                this.user.isVip = false;
+                this.user.activeStyle = 'style_def';
+            }
+
+            if(this.user.isVip) {
+                nameEl.innerText = "VİP " + this.user.name;
+                nameEl.classList.add('txt-rgb');
+                document.getElementById('vip-badge').innerText = "👑 VİP";
+            } else {
+                nameEl.innerText = this.user.name;
+                const styleObj = this.shopItems.find(i => i.id === this.user.activeStyle);
+                if(styleObj) nameEl.classList.add(styleObj.class); else nameEl.classList.add('txt-def');
+            }
+            
+            document.getElementById('d-id').innerText = this.user.id;
+            document.getElementById('potion-badge').style.display = this.user.hasPotion ? 'block' : 'none';
+            document.getElementById('vip-badge').style.display = this.user.isVip ? 'block' : 'none';
+            if(this.user.isVip && this.user.vipExpiry) {
+                const daysLeft = Math.ceil((this.user.vipExpiry - Date.now()) / (1000 * 60 * 60 * 24));
+                if(this.user.vipExpiry > now + 30000000000) {
+                     document.getElementById('vip-badge').innerHTML += " (SINIRSIZ)";
+                } else {
+                     document.getElementById('vip-badge').innerHTML += ` (${daysLeft} GÜN)`;
+                }
+            }
+            
+            document.getElementById('lvl-num').innerText = "LVL " + this.user.level;
+            document.getElementById('lvl-title').innerText = this.getLevelTitle(this.user.level);
+            const req = this.user.level * 100;
+            const pct = (this.user.xp / req) * 100;
+            document.getElementById('xp-fill').style.width = pct + "%";
+
+            this.save(); 
+        },
+        notif: function(msg, type) {
+            const n = document.getElementById('notif');
+            n.innerText = msg; n.className = type; n.classList.add('active');
+            setTimeout(()=>n.classList.remove('active'), 2000);
+            if(type!=='click') audio.sfx(type);
+        },
+        modBet: function(v) {
+            if(this.isLocked && !(this.currentGame === 'rocket' && this.gameState.active)) return;
+            const inp = document.getElementById('bet-inp');
+            let val = parseInt(inp.value) + v;
+            if(val < 50) val = 50;
+            inp.value = val;
+        },
+        redeem: function() {
+            const code = document.getElementById('code-inp').value.trim();
+            if(this.user.codes.includes(code)) return this.notif("Kullanıldı!", "lose");
+            
+            if(code === "PARA") { 
+                this.user.money += 3000;
+                this.notif("+3,000 DİNAR", "win"); 
+            }
+            else if(code === "VİP23") {
+                const forever = 36500 * 24 * 60 * 60 * 1000;
+                this.user.isVip = true;
+                this.user.vipExpiry = Date.now() + forever;
+                this.notif("VİP AKTİF! (SINIRSIZ)", "win");
+                audio.sfx('win');
+            }
+            else { 
+                return this.notif("Geçersiz Kod", "lose");
+            }
+            
+            this.user.codes.push(code);
+            this.updateUI();
+        },
+
+        /* --- MAĞAZA --- */
+        renderShop: function() {
+            const list = document.getElementById('shop-list');
+            list.innerHTML = '';
+            this.shopItems.forEach(item => {
+                if(this.user.isVip && item.id === 'style_vip') return;
+                if(item.codeOnly && !this.user.inventory.includes(item.id)) return;
+                
+                const owned = this.user.inventory.includes(item.id);
+                const active = this.user.activeStyle === item.id;
+                let btnHtml = '';
+
+                if(item.type === 'consumable') {
+                     if(item.id === 'potion') return; 
+                } else {
+                    if(owned) {
+                        if(active) btnHtml = `<button class="btn" style="background:#444;" disabled>KULLANILIYOR</button>`;
+                        else btnHtml = `<button class="btn btn-blue" onclick="sys.equip('${item.id}')">KUŞAN</button>`;
+                    } else if(item.codeOnly) {
+                        btnHtml = `<button class="btn" style="background:#333; color:#aaa;" disabled>SADECE KOD İLE</button>`;
+                    } else {
+                        btnHtml = `<button class="btn" onclick="sys.buy('${item.id}')">${item.price.toLocaleString()} DİNAR</button>`;
+                    }
+                }
+                
+                const div = document.createElement('div');
+                div.className = `btn-shop ${owned ? 'owned' : ''}`;
+                div.innerHTML = `<div><span class="${item.class || ''}" style="font-size:16px;">${item.name}</span></div><div style="width:100px;">${btnHtml}</div>`;
+                list.appendChild(div);
+            });
+        },
+        buy: function(id) {
+            const item = this.shopItems.find(i=>i.id===id);
+            if(this.user.money >= item.price) {
+                this.user.money -= item.price;
+                this.user.inventory.push(id);
+                audio.sfx('buy'); this.notif("SATIN ALINDI!", "win");
+                this.updateUI(); this.renderShop();
+            } else this.notif("Yetersiz DİNAR", "lose");
+        },
+        equip: function(id) {
+            this.user.activeStyle = id;
+            this.updateUI(); this.renderShop(); this.notif("Kuşanıldı!", "click");
+        },
+
+        /* --- OYUN YÖNETİCİSİ --- */
+        game: function(type) {
+            if(this.isLocked) return this.notif("Oyun bitmesini bekle!", "lose");
+            this.currentGame = type; this.nav('p-game');
+            document.getElementById('g-title').innerText = type.toUpperCase();
+            const stage = document.getElementById('game-stage');
+            const btn = document.getElementById('btn-action');
+            const betUI = document.getElementById('std-bet-ui');
+            const scratchUI = document.getElementById('scratch-controls');
+            const horseUI = document.getElementById('horse-controls');
+            const rouletteUI = document.getElementById('roulette-controls');
+            const cockUI = document.getElementById('cockfight-controls');
+
+            stage.innerHTML = '';
+            btn.innerText = "BAŞLAT"; btn.disabled = false; btn.style.display = 'block';
+            betUI.style.display = 'block'; scratchUI.style.display = 'none';
+            horseUI.style.display = 'none';
+            rouletteUI.style.display = 'none'; cockUI.style.display = 'none';
+            document.getElementById('bet-inp').disabled = false;
+            
+            btn.classList.remove('btn-green');
+            if(type === 'cockfight') {
+                betUI.style.display = 'block';
+                cockUI.style.display = 'block'; btn.style.display = 'none';
+                stage.innerHTML = `<div class="arena"><div id="rooster-blue" class="rooster">🐓</div><div id="rooster-red" class="rooster">🐓</div></div><div id="cock-res" style="color:gold; font-weight:bold; height:20px; text-align:center;">BAHİS YAPIN</div>`;
+            }
+            else if(type === 'case') {
+                betUI.style.display = 'block';
+                btn.innerText = "KASA AÇ";
+                stage.innerHTML = `<div class="case-window"><div class="case-line"></div><div class="case-strip" id="case-strip"></div></div><div style="font-size:10px; color:#aaa; margin-top:5px;">2x, 3x, BOŞ veya -100 DİNAR</div>`;
+                this.logic.renderCase();
+            }
+            else if(type === 'stone') {
+                betUI.style.display = 'block';
+                btn.style.display = 'none';
+                stage.innerHTML = `<div class="water-bg" onclick="sys.logic.stoneSkip()"><div id="stone-overlay">SEKTİRMEK İÇİN TIKLA</div><div id="stone-el" class="stone">🪨</div></div><div style="margin-top:5px; color:#aaa; font-size:10px;">TIKLA VE SEKTİR (BAHİS: KUTUYA YAZ)</div>`;
+                sys.gameState = { active: false };
+            }
+            else if(type === 'shooter') {
+                betUI.style.display = 'none';
+                btn.style.display = 'none';
+                stage.innerHTML = `<div class="shooter-area" id="shoot-area" onclick="sys.logic.shootMiss()"><div style="position:absolute; top:5px; left:5px; color:#0f0;">VURULAN: <span id="shoot-score">0</span></div><div class="fps-gun" id="fps-gun">🔫</div></div>`;
+                sys.logic.shooterSpawn();
+            }
+            else if(type === 'rocket') {
+                stage.innerHTML = `<div class="rocket-container"><div style="font-size:48px; font-family:'Share Tech Mono'; z-index:2;" id="r-val">1.00x</div><div class="rocket-obj" id="r-obj">🚀</div></div>`;
+                this.gameState = { active: false };
+            }
+            else if(type === 'cup') {
+                stage.innerHTML = `<div class="cup-container"><div class="cup" id="cup-0" onclick="sys.logic.cupSelect(0)">🥤</div><div class="cup" id="cup-1" onclick="sys.logic.cupSelect(1)">🥤</div><div class="cup" id="cup-2" onclick="sys.logic.cupSelect(2)">🥤</div><div class="cup-ball" id="cup-ball">🔴</div></div><div id="cup-result" style="margin-top:20px; font-size:18px; color:gold; height:30px;"></div>`;
+                btn.innerText = "KARIŞTIR & BAŞLA";
+                this.gameState = { active: false };
+            }
+            else if(type === 'mines') {
+                let grid = `<div class="mines-grid">`;
+                for(let i=0; i<25; i++) grid += `<div class="mine-tile" id="m-${i}" onclick="sys.logic.minesCheck(${i})"></div>`;
+                grid += `</div>`;
+                stage.innerHTML = grid; btn.innerText = "BAHİS YAP";
+                this.gameState = { active: false };
+            }
+            else if(type === 'horse') {
+                horseUI.style.display = 'block';
+                betUI.style.display = 'block'; btn.style.display = 'none'; 
+                let track = `<div style="width:100%; padding:10px;">`;
+                for(let i=1; i<=4; i++) { track += `<div class="track-lane" id="lane-${i}"><div class="track-horse" id="horse-${i}">🐎</div><div style="position:absolute; right:0; font-size:10px; color:#555;">BİTİŞ</div></div>`;
+                }
+                track += `</div>`;
+                stage.innerHTML = track;
+                this.gameState = { selectedHorse: null };
+            }
+            else if(type === 'sweet') {
+                stage.innerHTML = `<div id="bonanza-grid" class="bonanza-grid"></div><div id="bonanza-msg" style="height:30px; margin-top:10px; font-weight:bold; color:gold;"></div>`;
+                sys.logic.bonanzaFill(true);
+            }
+            else if(type === 'penalty') {
+                stage.innerHTML = `<div style="width:90%; height:150px; border:5px solid white; border-bottom:none; position:relative; display:flex; justify-content:center; align-items:flex-end; background:rgba(0,255,0,0.1); overflow:hidden;">
+                    <div id="gk" style="font-size:40px; position:absolute; bottom:0; left:50%; transform:translateX(-50%); transition: left 0.5s ease;">🧤</div>
+                 </div>
+                <div id="ball" style="font-size:30px; position:absolute; bottom:50px; left:50%; transform:translateX(-50%); transition: all 0.5s ease;">⚽</div>
+                <div style="display:flex; gap:10px; width:100%; margin-top:20px; z-index:10;">
+                    <button class="btn" onclick="sys.logic.shoot('L')">SOL ⬅️</button>
+                    <button class="btn" onclick="sys.logic.shoot('M')">ORTA ⬆️</button>
+                    <button class="btn" onclick="sys.logic.shoot('R')">SAĞ ➡️</button>
+                </div>`;
+                btn.style.display = 'none';
+            }
+            else if(type === 'clicker') {
+                betUI.style.display = 'none';
+                stage.innerHTML = `<div onclick="sys.logic.clicker()" style="font-size:80px; cursor:pointer; margin:20px;">🪙</div><div id="clk-cnt" style="font-size:24px; color:gold;">0</div>`;
+                this.gameState = { clicks: 0 };
+            }
+            else if(type === 'dice') {
+                 stage.innerHTML = `<div style="font-size:60px; margin:20px;" id="d-dice">🎲</div><div style="display:flex; gap:10px;"><button class="btn btn-red" onclick="sys.logic.dice('low')">DÜŞÜK (1-3)</button><button class="btn btn-green" onclick="sys.logic.dice('high')">YÜKSEK (4-6)</button></div>`;
+                 btn.style.display = 'none';
+            }
+            else if(type === 'rps') {
+                stage.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center;"><div style="font-size:50px; margin-bottom:20px;" id="rps-bot">🤖</div><div id="rps-countdown" class="rps-countdown" style="display:none;">3</div><div class="rps-choices"><div class="rps-choice" onclick="sys.logic.rps('r')">🪨</div><div class="rps-choice" onclick="sys.logic.rps('p')">📄</div><div class="rps-choice" onclick="sys.logic.rps('s')">✂️</div></div><div id="rps-result" style="margin-top:20px; font-size:18px; color:gold; height:30px;"></div></div>`;
+                btn.style.display = 'none';
+            }
+            else if(type === 'slot') {
+                stage.innerHTML = `<div style="display:flex; gap:10px; font-size:40px; background:#222; padding:20px; border-radius:10px; border:2px solid gold;"><div id="s1">7️⃣</div><div id="s2">7️⃣</div><div id="s3">7️⃣</div></div>`;
+            }
+            else if(type === 'scratch') {
+                betUI.style.display = 'none';
+                scratchUI.style.display = 'block'; 
+                document.getElementById('game-stage').innerHTML = `<div style="text-align:center; margin-top:50px; color:#aaa;">YENİ KART ALMAN GEREKİYOR</div>`;
+            }
+            else if(type === 'roulette') {
+                betUI.style.display = 'block';
+                rouletteUI.style.display = 'block'; btn.style.display = 'none';
+                this.logic.setupRoulette();
+            }
+        },
+
+        action: function() {
+            if(this.isLocked && !(this.currentGame === 'rocket' && this.gameState.active)) return;
+            if(this.currentGame === 'mines' && this.gameState.active) {
+                this.logic.minesCashout();
+                return;
+            }
+            
+            const bet = parseInt(document.getElementById('bet-inp').value);
+            if(this.currentGame === 'cup' && bet > 100000) return this.notif("Max Bahis: 100.000 DİNAR", "lose");
+            if(this.currentGame === 'stone') { this.logic.stoneStart(); return; }
+            if(this.currentGame === 'case') { this.logic.openCase(); return; }
+            if(this.currentGame!=='clicker' && bet > this.user.money) return this.notif("Para Yok!", "lose");
+            if(this.currentGame==='rocket') this.logic.rocketStart(bet);
+            if(this.currentGame==='mines') this.logic.minesStart(bet);
+            if(this.currentGame==='slot') this.logic.slotSpin(bet);
+            if(this.currentGame==='sweet') this.logic.bonanzaSpin(bet);
+            if(this.currentGame==='cup') this.logic.cupStart(bet);
+        },
+
+        logic: {
+            shoot: function(dir) {
+                if(sys.isLocked) return;
+                const bet = parseInt(document.getElementById('bet-inp').value); 
+                if(bet > sys.user.money) return sys.notif("Bakiye Yok", "lose");
+                
+                sys.user.money -= bet; sys.updateUI(); sys.addXp(8); 
+                sys.isLocked = true;
+                document.getElementById('bet-inp').disabled = true;
+                
+                const gk = document.getElementById('gk'); 
+                const ball = document.getElementById('ball'); 
+                const moves = ['L', 'M', 'R'];
+                const kMove = moves[Math.floor(Math.random() * 3)];
+                const pos = { L: '10%', M: '50%', R: '90%' };
+                ball.style.bottom = "120px";
+                ball.style.left = pos[dir];
+                gk.style.left = pos[kMove];
+                setTimeout(() => {
+                    if(dir !== kMove) { 
+                        sys.user.money += bet * 1.9; 
+                        sys.notif("GOOOL! KAZANDIN!", "win"); 
+                        audio.sfx('win'); 
+                    } else { 
+                        sys.notif("KALECİ KURTARDI!", "lose"); 
+                        audio.sfx('lose'); 
+                    }
+                    sys.updateUI(); 
+                    setTimeout(() => { 
+                        ball.style.bottom = "50px"; 
+                        ball.style.left = "50%"; 
+                        gk.style.left = "50%"; 
+                        sys.isLocked = false; 
+                        document.getElementById('bet-inp').disabled = false; 
+                    }, 1000);
+                }, 500);
+            },
+            checkBankStatus: function() {
+                const now = Date.now();
+                if(sys.user.bank.debt > 0) {
+                    if(now > sys.user.bank.due) {
+                        const overdueTime = now - sys.user.bank.due;
+                        if(overdueTime > 600000) {
+                             if(!sys.user.bank.banned) {
+                                 sys.user.bank.banned = true;
+                                 alert("KOYUNCUK BANK: Borcunu ödemediğin için banlandın! YALLAH!");
+                             }
+                        } else {
+                            const interest = Math.floor(sys.user.bank.debt * 0.1);
+                            sys.user.bank.debt += interest;
+                            sys.user.money -= interest; 
+                            sys.notif(`BANKA: Gecikme Faizi Kesildi (-${interest})`, "lose");
+                            sys.user.bank.due = now + 60000;
+                        }
+                    }
+                }
+            },
+            updateBankUI: function() {
+                document.getElementById('bank-debt').innerText = sys.user.bank.debt.toLocaleString() + " DİNAR";
+                document.getElementById('bank-limit').innerText = sys.user.bank.limit.toLocaleString() + " DİNAR";
+                if(sys.user.bank.debt > 0) {
+                    const timeLeft = Math.max(0, Math.ceil((sys.user.bank.due - Date.now()) / 1000));
+                    document.getElementById('bank-date').innerText = timeLeft + " saniye";
+                } else {
+                    document.getElementById('bank-date').innerText = "BORÇ YOK";
+                }
+                
+                if(sys.user.bank.banned) {
+                    document.querySelector('.bank-card').style.borderColor = "red";
+                    document.querySelector('.bank-title').innerText = "BANLANDIN!";
+                }
+            },
+            bankTake: function() {
+                if(sys.user.bank.banned) return sys.notif("YALLAH! BANLISIN!", "lose");
+                if(sys.user.bank.debt > 0) return sys.notif("Önce borcunu öde!", "lose");
+                
+                const amount = parseInt(document.getElementById('bank-inp').value);
+                if(!amount || amount <= 0) return;
+                if(amount > sys.user.bank.limit) return sys.notif("Limit Yetersiz", "lose");
+                
+                sys.user.money += amount;
+                sys.user.bank.debt = Math.floor(amount * 1.2);
+                sys.user.bank.due = Date.now() + (5 * 60 * 1000); 
+                
+                sys.updateUI(); sys.logic.updateBankUI();
+                sys.notif("Kredi Çekildi", "win");
+            },
+            bankPay: function() {
+                if(sys.user.bank.debt <= 0) return sys.notif("Borcun Yok", "win");
+                const amount = sys.user.bank.debt;
+                
+                if(sys.user.money < amount) return sys.notif("Paran Yetmiyor", "lose");
+                
+                sys.user.money -= amount;
+                sys.user.bank.debt = 0;
+                sys.user.bank.limit += 5000;
+                sys.updateUI(); sys.logic.updateBankUI();
+                sys.notif("Borç Ödendi! Limit Arttı!", "win");
+            },
+            renderCase: function() {
+                const strip = document.getElementById('case-strip');
+                let html = '';
+                for(let i=0; i<100; i++) {
+                    const r = Math.random();
+                    let type = 'item-empty';
+                    let text = 'BOŞ';
+                    
+                    if(r < 0.05) { type = 'item-3x'; text = '3x'; }
+                    else if(r < 0.15) { type = 'item-2x'; text = '2x'; }
+                    else if(r < 0.40) { type = 'item-bad'; text = '-100 DİNAR'; }
+                    else { type = 'item-empty'; text = 'BOŞ'; }
+                    
+                    html += `<div class="case-item ${type}" id="c-item-${i}">${text}</div>`;
+                }
+                strip.innerHTML = html;
+                strip.style.transform = 'translateX(0px)';
+            },
+            openCase: function() {
+                const bet = parseInt(document.getElementById('bet-inp').value);
+                if(bet > sys.user.money) return sys.notif("Para Yok", "lose");
+                
+                sys.user.money -= bet;
+                sys.updateUI();
+                sys.isLocked = true;
+                document.getElementById('btn-action').disabled = true;
+                const strip = document.getElementById('case-strip');
+                
+                const winIndex = Math.floor(Math.random() * 20) + 70; 
+                const itemWidth = 100;
+                const offset = (winIndex * itemWidth) - 150 + (Math.random() * 80); 
+                
+                strip.style.transform = `translateX(-${offset}px)`;
+                setTimeout(() => {
+                    const item = document.getElementById(`c-item-${winIndex}`);
+                    const val = item.innerText;
+                    
+                    if(val === '3x') {
+                       const w = bet * 3;
+                        sys.user.money += w;
+                        sys.notif(`3x KAZANDIN! +${w}`, "win");
+                        audio.sfx('win');
+                    } else if(val === '2x') {
+                        const w = bet * 2;
+                        sys.user.money += w;
+                        sys.notif(`2x KAZANDIN! +${w}`, "win");
+                        audio.sfx('win');
+                    } else if(val === '-100 DİNAR') {
+                        sys.user.money -= 100;
+                        sys.notif("ZARAR ETTİN! -100 DİNAR", "lose");
+                        audio.sfx('lose');
+                    } else {
+                        sys.notif("BOŞ ÇIKTI", "lose");
+                    }
+                    
+                    sys.isLocked = false;
+                    sys.updateUI();
+                    document.getElementById('btn-action').disabled = false;
+                    
+                    setTimeout(() => { sys.logic.renderCase(); }, 2000);
+                }, 5000);
+            },
+            shooterSpawn: function() {
+                if(sys.currentGame !== 'shooter') return;
+                const area = document.getElementById('shoot-area');
+                if(!area) return;
+
+                const enemy = document.createElement('div');
+                enemy.innerText = '👾';
+                enemy.className = 'target-enemy';
+                enemy.style.left = Math.random() * 80 + 10 + '%';
+                enemy.style.top = Math.random() * 60 + 10 + '%';
+                enemy.onclick = (e) => {
+                    e.stopPropagation();
+                    sys.user.money += 100;
+                    sys.updateUI();
+                    audio.sfx('gun');
+                    
+                    const gun = document.getElementById('fps-gun');
+                    gun.classList.add('shoot-anim');
+                    setTimeout(()=>gun.classList.remove('shoot-anim'), 100);
+
+                    const txt = document.createElement('div');
+                    txt.innerText = "+100 DİNAR";
+                    txt.className = "float-dmg";
+                    txt.style.left = e.clientX + 'px';
+                    txt.style.top = e.clientY + 'px';
+                    document.body.appendChild(txt);
+                    setTimeout(()=>txt.remove(), 1000);
+
+                    enemy.remove();
+                    document.getElementById('shoot-score').innerText = parseInt(document.getElementById('shoot-score').innerText) + 1;
+                };
+
+                area.appendChild(enemy);
+                setTimeout(() => { if(enemy.parentNode) enemy.remove(); }, 2000);
+                setTimeout(() => sys.logic.shooterSpawn(), 800);
+            },
+            shootMiss: function() {
+                sys.user.money -= 200;
+                sys.updateUI();
+                sys.notif("-200 DİNAR (ISKADIN)", "lose");
+                const gun = document.getElementById('fps-gun');
+                gun.classList.add('shoot-anim');
+                setTimeout(()=>gun.classList.remove('shoot-anim'), 100);
+                audio.sfx('click');
+            },
+            minesStart: function(bet) {
+                sys.user.money -= bet;
+                sys.updateUI(); sys.addXp(8);
+                sys.gameState.active = true; sys.gameState.bet = bet; sys.gameState.bombs = []; sys.gameState.mul = 1.0; sys.gameState.currWin = 0; sys.isLocked = true;
+                while(sys.gameState.bombs.length < 5) { let r = Math.floor(Math.random()*25); if(!sys.gameState.bombs.includes(r)) sys.gameState.bombs.push(r); }
+                document.querySelectorAll('.mine-tile').forEach(t=>{t.innerText=""; t.style.background="#333"; t.classList.remove('open');});
+                const btn = document.getElementById('btn-action');
+                btn.innerText = "ÇEKİL (0 DİNAR)";
+                btn.classList.add('btn-green'); 
+                btn.onclick = function() { sys.logic.minesCashout(); }; 
+                document.getElementById('bet-inp').disabled = true;
+            },
+            minesCheck: function(idx) {
+                if(!sys.gameState.active) return;
+                const el = document.getElementById(`m-${idx}`); if(el.classList.contains('open')) return;
+                el.classList.add('open');
+                if(sys.gameState.bombs.includes(idx)) {
+                   el.style.background = "red";
+                   el.innerText = "💣"; sys.notif("BOOOOM!", "lose"); 
+                   sys.gameState.active = false; sys.isLocked = false; 
+                   document.getElementById('bet-inp').disabled = false; 
+                   
+                   const btn = document.getElementById('btn-action');
+                   btn.innerText = "BAŞLAT"; 
+                   btn.classList.remove('btn-green'); 
+                   btn.onclick = function() { sys.action(); }; 
+                   
+                   sys.gameState.bombs.forEach(b=>document.getElementById(`m-${b}`).innerText="💣");
+                } else { 
+                    el.style.background = "green";
+                    el.innerText = "💎"; sys.gameState.mul += 0.2; 
+                    sys.gameState.currWin = Math.floor(sys.gameState.bet * sys.gameState.mul); 
+                    document.getElementById('btn-action').innerText = `ÇEKİL (${sys.gameState.currWin} DİNAR)`;
+                }
+            },
+            minesCashout: function() {
+                if(!sys.gameState.active) return;
+                if(sys.gameState.currWin > 0) {
+                    sys.user.money += sys.gameState.currWin;
+                    sys.notif(`KAZANDIN: ${sys.gameState.currWin} DİNAR`, "win");
+                } else {
+                    sys.notif("HİÇ OYNAMADIN!", "lose");
+                    return; 
+                }
+                sys.updateUI();
+                sys.gameState.active = false; sys.isLocked = false; 
+                document.getElementById('bet-inp').disabled = false; 
+                
+                const btn = document.getElementById('btn-action');
+                btn.innerText = "BAŞLAT"; 
+                btn.classList.remove('btn-green');
+                btn.onclick = function() { sys.action(); };
+                
+                sys.game('mines'); 
+            },
+            generateMatches: function() {
+                const teamsTR = ["Galatasaray", "Fenerbahçe", "Beşiktaş", "Trabzonspor", "Adana Demir", "Başakşehir", "Antalyaspor", "Konyaspor"];
+                const teamsEN = ["Man City", "Arsenal", "Liverpool", "Man United", "Chelsea", "Tottenham", "Newcastle", "Aston Villa"];
+                sys.matches = [];
+                sys.coupon = [];
+                for(let i=0; i<3; i++) {
+                     sys.matches.push(this.createMatch(teamsTR, "Süper Lig"));
+                     sys.matches.push(this.createMatch(teamsEN, "Premier League"));
+                }
+            },
+            createMatch: function(teams, league) {
+                const h = teams[Math.floor(Math.random()*teams.length)];
+                let a = teams[Math.floor(Math.random()*teams.length)];
+                while(h===a) a = teams[Math.floor(Math.random()*teams.length)];
+                return {
+                    id: Math.random().toString(36).substr(2, 9),
+                    home: h, away: a, league: league,
+                    odds: {
+                        '1': (Math.random()*2+1.1).toFixed(2),
+                        'x': (Math.random()*2+2.5).toFixed(2),
+                        '2': (Math.random()*3+1.2).toFixed(2)
+                    }
+                };
+            },
+            renderMatches: function() {
+                const div = document.getElementById('match-list');
+                div.innerHTML = '';
+                sys.matches.forEach(m => {
+                    const row = document.createElement('div');
+                    row.className = 'bet-match';
+                    row.innerHTML = `
+                        <div class="bet-teams"><div>${m.home}</div><div>${m.away}</div><div style="color:#666; font-size:9px;">${m.league}</div></div>
+                        <div class="bet-odds">
+                            <div class="bet-odd-btn" onclick="sys.logic.addToCoupon('${m.id}', '1', ${m.odds['1']})">1<br>${m.odds['1']}</div>
+                            <div class="bet-odd-btn" onclick="sys.logic.addToCoupon('${m.id}', 'x', ${m.odds['x']})">X<br>${m.odds['x']}</div>
+                            <div class="bet-odd-btn" onclick="sys.logic.addToCoupon('${m.id}', '2', ${m.odds['2']})">2<br>${m.odds['2']}</div>
+                        </div>
+                    `;
+                    div.appendChild(row);
+                });
+                this.updateCoupon();
+            },
+            addToCoupon: function(id, pick, odd) {
+                const exist = sys.coupon.findIndex(i => i.id === id);
+                if(exist > -1) sys.coupon.splice(exist, 1);
+                sys.coupon.push({id: id, pick: pick, odd: parseFloat(odd)});
+                this.updateCoupon();
+            },
+            updateCoupon: function() {
+                const list = document.getElementById('coupon-items');
+                const bet = parseInt(document.getElementById('c-bet').value) || 0;
+                let totalOdd = 1;
+                list.innerHTML = '';
+                if(sys.coupon.length === 0) {
+                     list.innerHTML = 'Maç seçilmedi.';
+                    totalOdd = 0;
+                } else {
+                    sys.coupon.forEach(i => {
+                        const m = sys.matches.find(x=>x.id===i.id);
+                        totalOdd *= i.odd;
+                        list.innerHTML += `<div>${m.home} - ${m.away} [${i.pick.toUpperCase()}] @${i.odd}</div>`;
+                    });
+                }
+                document.getElementById('c-odd').innerText = totalOdd.toFixed(2);
+                document.getElementById('c-win').innerText = Math.floor(bet * totalOdd).toLocaleString();
+            },
+            placeBet: function() {
+                const bet = parseInt(document.getElementById('c-bet').value) || 0;
+                if(sys.coupon.length === 0) return sys.notif("Maç Seç!", "lose");
+                if(bet > sys.user.money) return sys.notif("Para Yok!", "lose");
+                
+                sys.user.money -= bet;
+                sys.updateUI();
+                audio.sfx('click');
+                setTimeout(() => {
+                    let win = true;
+                    sys.coupon.forEach(i => {
+                        const res = Math.random();
+                        let outcome = 'x';
+                        if(res < 0.45) outcome = '1';
+                        else if(res > 0.75) outcome = '2';
+                        
+                        if(outcome !== i.pick) win = false;
+                    });
+                    
+                    if(win) {
+                        const w = Math.floor(bet * parseFloat(document.getElementById('c-odd').innerText));
+                        sys.user.money += w;
+                        sys.notif(`KUPON TUTTU! +${w} DİNAR`, "win");
+                        audio.sfx('win');
+                    } else {
+                        sys.notif("KUPON YATTI", "lose");
+                        audio.sfx('lose');
+                    }
+                    sys.coupon = [];
+                    sys.logic.generateMatches();
+                    sys.logic.renderMatches();
+                    sys.updateUI();
+                }, 1500);
+            },
+            cockStart: function(choice) {
+                if(sys.isLocked) return;
+                const bet = parseInt(document.getElementById('bet-inp').value);
+                if(bet > sys.user.money) return sys.notif("Bakiye Yetersiz", "lose");
+
+                sys.user.money -= bet; sys.updateUI(); sys.addXp(10);
+                sys.isLocked = true;
+                document.getElementById('bet-inp').disabled = true;
+
+                const blue = document.getElementById('rooster-blue');
+                const red = document.getElementById('rooster-red');
+                const res = document.getElementById('cock-res');
+
+                blue.classList.add('fight-anim-blue');
+                red.classList.add('fight-anim-red');
+                res.innerText = "DÖVÜŞ BAŞLADI!";
+
+                let timer = 6;
+                const interval = setInterval(() => {
+                    timer--;
+                    res.innerText = `KALAN SÜRE: ${timer}s`;
+                    if(timer <= 0) {
+                        clearInterval(interval);
+                        blue.classList.remove('fight-anim-blue');
+                        red.classList.remove('fight-anim-red');
+
+                        const userWin = Math.random() < 0.35;
+                        let winner = '';
+                        if(userWin) winner = choice;
+                        else winner = choice === 'blue' ? 'red' : 'blue';
+
+                        if(winner === choice) {
+                             const winAmount = Math.floor(bet * 2.8);
+                            sys.user.money += winAmount;
+                            res.innerText = `KAZANDIN! ${choice.toUpperCase()} KAZANDI!`;
+                             sys.notif(`+${winAmount} DİNAR`, "win");
+                            audio.sfx('win');
+                        } else {
+                            res.innerText = `KAYBETTİN! ${winner.toUpperCase()} KAZANDI`;
+                            sys.notif("KAYBETTİN", "lose");
+                            audio.sfx('lose');
+                        }
+                        sys.updateUI();
+                        sys.isLocked = false;
+                        document.getElementById('bet-inp').disabled = false;
+                    }
+                }, 1000);
+            },
+            stoneStart: function() {
+                const bet = parseInt(document.getElementById('bet-inp').value);
+                if(bet > sys.user.money) return sys.notif("Para Yok", "lose");
+                sys.user.money -= bet; sys.updateUI();
+                
+                const s = document.getElementById('stone-el');
+                const o = document.getElementById('stone-overlay');
+                s.style.bottom = '20px'; s.style.left = '10px'; s.style.transform = 'none'; s.style.display = 'block';
+                o.style.display = 'flex';
+                sys.notif("Taşa Tıkla!", "click");
+            },
+            stoneSkip: function() {
+                const s = document.getElementById('stone-el');
+                const o = document.getElementById('stone-overlay');
+                
+                if(o.style.display !== 'none') o.style.display = 'none';
+
+                if(s.style.left !== '10px' && s.style.left !== '') return;
+                const skips = Math.floor(Math.random() * 12) + 1;
+                const bet = parseInt(document.getElementById('bet-inp').value);
+                let earned = 0;
+                let currentSkip = 0;
+                const jump = () => {
+                    currentSkip++;
+                    const progress = currentSkip / skips;
+                    const leftPos = 10 + (progress * 80);
+                    
+                    s.style.bottom = '60px';
+                    s.style.left = leftPos + '%';
+                    s.style.transform = `rotate(${currentSkip * 360}deg)`;
+                    setTimeout(() => {
+                        s.style.bottom = '20px';
+                        const r = document.createElement('div');
+                        r.className = 'ripple';
+                        r.style.left = leftPos + '%';
+                        r.style.bottom = '20px';
+                        document.querySelector('.water-bg').appendChild(r);
+                        setTimeout(()=>r.remove(), 1000);
+                        audio.sfx('click');
+
+                        if(currentSkip < skips) {
+                            setTimeout(jump, 300);
+                        } else {
+                             if(skips >= 9) earned = bet * 1.5;
+                            else earned = bet + (bet * 0.10 * skips);
+                            
+                             sys.user.money += Math.floor(earned);
+                            sys.notif(`${skips} KEZ SEKTİ! +${Math.floor(earned)} DİNAR`, "win");
+                            sys.addXp(skips);
+                             sys.updateUI();
+                        }
+                    }, 200);
+                };
+                jump();
+            },
+            setupRoulette: function() {
+                // FIXED: Rulet için HTML oluştur
+                let rouletteHTML = `<div class="roulette-container"><div class="roulette-wheel-container"><div class="roulette-wheel" id="roulette-wheel"><div class="roulette-center">BOZMAI<br>CASINO</div></div><div class="roulette-pointer"></div></div><div class="roulette-table" id="roulette-table"><div class="roulette-table-number green" onclick="sys.logic.rouletteBet(0)">0</div>`;
+                for(let i = 1; i <= 36; i++) { const isRed = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(i);
+                rouletteHTML += `<div class="roulette-table-number ${isRed ? 'red' : 'black'}" onclick="sys.logic.rouletteBet(${i})">${i}</div>`;
+                }
+                rouletteHTML += `</div><div class="roulette-bets"><div class="roulette-bet-btn" onclick="sys.logic.rouletteBetType('red')">KIRMIZI (2x)</div><div class="roulette-bet-btn" onclick="sys.logic.rouletteBetType('black')">SİYAH (2x)</div><div class="roulette-bet-btn" onclick="sys.logic.rouletteBetType('even')">ÇİFT (2x)</div><div class="roulette-bet-btn" onclick="sys.logic.rouletteBetType('odd')">TEK (2x)</div><div class="roulette-bet-btn" onclick="sys.logic.rouletteBetType('1-18')">1-18 (2x)</div><div class="roulette-bet-btn" onclick="sys.logic.rouletteBetType('19-36')">19-36 (2x)</div></div><div id="roulette-selected" style="margin-top:10px; font-size:12px; color:gold; text-align:center;"></div>`;
+                document.getElementById('game-stage').innerHTML = rouletteHTML;
+                sys.gameState.rouletteBets = [];
+                this.createRouletteNumbers();
+            },
+            createRouletteNumbers: function() {
+                // FIXED: Rulet çark numaralarını görsel olarak yerleştir
+                sys.rouletteOrder = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+                const wheel = document.getElementById('roulette-wheel');
+                
+                for(let i = 0; i < sys.rouletteOrder.length; i++) {
+                    const numberVal = sys.rouletteOrder[i];
+                    const number = document.createElement('div'); 
+                    number.className = 'roulette-number'; 
+                    number.innerText = numberVal;
+                    
+                    let bg = 'transparent';
+                    if (numberVal === 0) number.style.color = '#0f0'; 
+                    else if ([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(numberVal)) number.style.color = '#f00'; 
+                    else number.style.color = '#fff';
+                    
+                    const angle = (i * (360/37));
+                    number.style.transform = `rotate(${angle}deg)`;
+                    wheel.appendChild(number);
+                }
+            },
+            rouletteBet: function(number) {
+                if(sys.isLocked) return;
+                const bet = parseInt(document.getElementById('bet-inp').value);
+                if(bet > sys.user.money) return sys.notif("Bakiye Yetersiz", "lose");
+                sys.gameState.rouletteBets.push({ type: 'number', value: number, bet: bet });
+                sys.user.money -= bet; sys.updateUI(); sys.notif(`${number} numaraya ${bet} DİNAR`, "click");
+                document.getElementById('roulette-selected').innerHTML = `SEÇİLİ BAHİS: <span style="color:#ffd700">${number} numara (${bet} DİNAR)</span>`;
+            },
+            rouletteBetType: function(type) {
+                if(sys.isLocked) return;
+                const bet = parseInt(document.getElementById('bet-inp').value);
+                if(bet > sys.user.money) return sys.notif("Bakiye Yetersiz", "lose");
+                sys.gameState.rouletteBets.push({ type: type, value: type, bet: bet });
+                sys.user.money -= bet; sys.updateUI();
+                sys.notif(`${type} (${bet} DİNAR)`, "click");
+                document.getElementById('roulette-selected').innerHTML = `SEÇİLİ BAHİS: <span style="color:#ffd700">${type} (${bet} DİNAR)</span>`;
+            },
+            rouletteClear: function() {
+                if(sys.isLocked) return;
+                sys.gameState.rouletteBets.forEach(bet => { sys.user.money += bet.bet; });
+                sys.gameState.rouletteBets = []; sys.updateUI(); sys.notif("Bahisler temizlendi", "click");
+            },
+            rouletteSpin: function() {
+                if(sys.isLocked || sys.gameState.rouletteBets.length === 0) return sys.notif("Bahis Yap!", "lose");
+                sys.isLocked = true; document.getElementById('bet-inp').disabled = true; sys.addXp(15);
+                
+                const wheel = document.getElementById('roulette-wheel');
+                const winningNumber = Math.floor(Math.random() * 37);
+                const winningIndex = sys.rouletteOrder.indexOf(winningNumber);
+                
+                // FIXED: Derece Hesaplama (Saat yönünde dönerse, üstteki sayı saat yönünün tersine hareket etmeli)
+                const pieceAngle = 360 / 37;
+                // 5 tam tur + (360 - hedef indexin açısı)
+                const targetRotate = (360 * 5) + (360 - (winningIndex * pieceAngle));
+                
+                wheel.style.transition = 'transform 4s cubic-bezier(0.1, 0.8, 0.2, 1)';
+                wheel.style.transform = `rotate(${targetRotate}deg)`;
+                
+                setTimeout(() => {
+                    const isRed = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(winningNumber);
+                    const isBlack = winningNumber !== 0 && !isRed;
+                    const isEven = winningNumber % 2 === 0 && winningNumber !== 0;
+                    const isOdd = winningNumber % 2 === 1;
+                    const isLow = winningNumber >= 1 && winningNumber <= 18;
+                    const isHigh = winningNumber >= 19 && winningNumber <= 36;
+                    
+                    let totalWin = 0;
+                    sys.gameState.rouletteBets.forEach(bet => {
+                        let win = false; let multiplier = 1;
+                        if(bet.type === 'number') { if(bet.value === winningNumber) { win = true; multiplier = 35; } } 
+                        else {
+                            multiplier = 2;
+                            switch(bet.value) { case 'red': win = isRed; break; case 'black': win = isBlack; break; case 'even': win = isEven; break; case 'odd': win = isOdd; break; case '1-18': win = isLow; break; case '19-36': win = isHigh; break; }
+                        }
+                        if(win) totalWin += bet.bet * multiplier;
+                    });
+                    
+                    if(totalWin > 0) { sys.user.money += totalWin; sys.notif(`KAZANDIN! +${totalWin} DİNAR (${winningNumber})`, "win"); audio.sfx('win'); } 
+                    else { sys.notif(`KAYBETTİN! (${winningNumber})`, "lose"); audio.sfx('lose'); }
+                    
+                    sys.updateUI();
+                    sys.gameState.rouletteBets = [];
+                    document.getElementById('roulette-selected').innerHTML = `🎯 SONUÇ: <span style="color:#ffd700">${winningNumber}</span>`;
+                    
+                    setTimeout(() => {
+                        sys.isLocked = false; document.getElementById('bet-inp').disabled = false;
+                        wheel.style.transition = 'none'; 
+                        wheel.style.transform = `rotate(${targetRotate % 360}deg)`;
+                    }, 2000);
+                }, 4000);
+            },
+            
+            rocketStart: function(bet) {
+                if(sys.gameState.active) { 
+                    clearInterval(sys.gameState.timer);
+                    let win = Math.floor(bet * sys.gameState.mul);
+                    sys.user.money += win; sys.updateUI(); sys.notif(`+${win} DİNAR`, "win");
+                    sys.gameState.active = false; sys.isLocked = false;
+                    document.getElementById('btn-action').innerText = "BAŞLAT"; document.getElementById('btn-action').classList.remove('btn-green');
+                    document.getElementById('bet-inp').disabled = false; audio.sfx('win'); return;
+                }
+                sys.user.money -= bet;
+                sys.updateUI(); sys.addXp(10); sys.gameState.active = true; sys.isLocked = true; sys.gameState.mul = 1.00;
+                let crashPoint, r = Math.random();
+                if(sys.user.hasPotion) crashPoint = (Math.random() * 1.5) + 1.00;
+                else {
+                    if (r < 0.60) crashPoint = 1.00 + (Math.random() * 0.20);
+                    else if (r < 0.85) crashPoint = 1.20 + (Math.random() * 0.30);
+                    else if (r < 0.95) crashPoint = 1.50 + (Math.random() * 0.50);
+                    else crashPoint = 2.00 + (Math.random() * 3.00);
+                }
+                const btn = document.getElementById('btn-action');
+                btn.innerText = "ÇEKİL"; btn.classList.add('btn-green'); document.getElementById('bet-inp').disabled = true;
+                sys.gameState.timer = setInterval(() => {
+                    sys.gameState.mul += 0.01;
+                    document.getElementById('r-val').innerText = sys.gameState.mul.toFixed(2) + 'x';
+                    document.getElementById('r-obj').style.bottom = (10 + (sys.gameState.mul*15)) + 'px';
+                    if(sys.gameState.mul >= crashPoint) {
+                        clearInterval(sys.gameState.timer);
+                        sys.gameState.active = false; sys.isLocked = false; document.getElementById('bet-inp').disabled = false;
+                        sys.notif(`PATLADI! (${crashPoint.toFixed(2)}x)`, "lose"); audio.sfx('lose');
+                        document.getElementById('r-val').style.color = 'red';
+                        btn.innerText = "BAŞLAT"; btn.classList.remove('btn-green');
+                    }
+                }, 60);
+            },
+            cupStart: function(bet) {
+                if(sys.gameState.active) return;
+                sys.user.money -= bet; sys.updateUI(); sys.addXp(10);
+                sys.isLocked = true; document.getElementById('bet-inp').disabled = true; document.getElementById('btn-action').disabled = true;
+                const winningIndex = Math.floor(Math.random() * 3);
+                sys.gameState.cupWin = winningIndex; sys.gameState.bet = bet;
+                const ball = document.getElementById('cup-ball');
+                const cups = ['cup-0', 'cup-1', 'cup-2'];
+                ball.style.opacity = 1;
+                ball.style.left = (winningIndex * 40 + 20) + '%';
+                const cupPositions = [0, 1, 2];
+                setTimeout(() => {
+                    document.getElementById(cups[winningIndex]).classList.add('up');
+                    setTimeout(() => {
+                        ball.style.opacity = 0; document.getElementById(cups[winningIndex]).classList.remove('up');
+                        let swaps = 0;
+                        const shuffleInterval = setInterval(() => {
+                            cupPositions.forEach((pos, idx) => { document.getElementById(cups[idx]).style.transform = `translateX(${(Math.random() * 30 - 15)}px)`; });
+                            swaps++;
+                            if(swaps > 15) {
+                                clearInterval(shuffleInterval);
+                                cupPositions.forEach((pos, idx) => { document.getElementById(cups[idx]).style.transform = `translateX(0)`; });
+                                for(let i = 0; i < 10; i++) { const a = Math.floor(Math.random() * 3); const b = Math.floor(Math.random() * 3); [cupPositions[a], cupPositions[b]] = [cupPositions[b], cupPositions[a]]; }
+                                sys.notif("BUL BAKALIM!", "click");
+                                sys.gameState.active = true; sys.gameState.cupPositions = [...cupPositions];
+                            }
+                        }, 100);
+                    }, 800);
+                }, 500);
+            },
+            cupSelect: function(idx) {
+                if(!sys.gameState.active) return;
+                sys.gameState.active = false;
+                document.getElementById(`cup-${idx}`).classList.add('up');
+                const ball = document.getElementById('cup-ball');
+                const realCupIndex = sys.gameState.cupPositions.indexOf(sys.gameState.cupWin);
+                ball.style.left = (realCupIndex * 40 + 20) + '%';
+                ball.style.opacity = 1;
+                setTimeout(() => {
+                    document.getElementById(`cup-${sys.gameState.cupWin}`).classList.add('up');
+                    setTimeout(() => {
+                        const resultEl = document.getElementById('cup-result');
+                        if(idx === sys.gameState.cupWin) {
+                            const win = Math.floor(sys.gameState.bet * 2.5);
+                            sys.user.money += win; resultEl.innerText = `BULDUN! +${win} DİNAR`; sys.notif(`BULDUN! +${win} DİNAR`, "win"); audio.sfx('win');
+                        } else {
+                            resultEl.innerText = `BOŞ! ${sys.gameState.cupWin+1}. BARDAKTI`; sys.notif("KAYBETTİN", "lose"); audio.sfx('lose');
+                        }
+                        sys.updateUI();
+                        setTimeout(() => {
+                            for(let i=0; i<3; i++) document.getElementById(`cup-${i}`).classList.remove('up');
+                            ball.style.opacity = 0; resultEl.innerText = '';
+                            sys.isLocked = false;
+                            document.getElementById('bet-inp').disabled = false; document.getElementById('btn-action').disabled = false;
+                        }, 2000);
+                    }, 1000);
+                }, 500);
+            },
+            selHorse: function(h) {
+                if(sys.isLocked) return;
+                const bet = parseInt(document.getElementById('bet-inp').value);
+                if(bet > sys.user.money) return sys.notif("Bakiye Yetersiz", "lose");
+                for(let i=1;i<=4;i++) document.getElementById(`h-btn-${i}`).classList.remove('btn-green');
+                document.getElementById(`h-btn-${h}`).classList.add('btn-green');
+                sys.user.money -= bet; sys.updateUI(); sys.addXp(10);
+                sys.isLocked = true; document.getElementById('bet-inp').disabled = true;
+                let pos = [0,0,0,0];
+                let interval = setInterval(() => {
+                    for(let i=0; i<4; i++) {
+                        pos[i] += Math.random() * 3; document.getElementById(`horse-${i+1}`).style.left = pos[i] + "%";
+                        if(pos[i] >= 90) {
+                            clearInterval(interval); let winner = i+1;
+                            if(winner === h) { let win = bet * 3; sys.user.money += win; sys.notif(`KAZANDIN! +${win} DİNAR`, "win"); audio.sfx('win'); } 
+                            else { sys.notif(`${winner}. AT KAZANDI!`, "lose"); audio.sfx('lose'); }
+                            sys.isLocked = false; sys.updateUI(); document.getElementById('bet-inp').disabled = false;
+                            setTimeout(() => { for(let j=0; j<4; j++) document.getElementById(`horse-${j+1}`).style.left = "0%"; }, 2000); return;
+                        }
+                    }
+                }, 50);
+            },
+            dice: function(pick) {
+                if(sys.isLocked) return;
+                const bet = parseInt(document.getElementById('bet-inp').value); if(bet>sys.user.money) return sys.notif("Para Yok", "lose");
+                sys.user.money-=bet; sys.addXp(5); sys.isLocked = true; document.getElementById('bet-inp').disabled = true;
+                const dEl = document.getElementById('d-dice'); let counter = 0;
+                let anim = setInterval(() => {
+                    dEl.innerText = ['⚀','⚁','⚂','⚃','⚄','⚅'][Math.floor(Math.random()*6)]; counter++;
+                    if(counter > 10) {
+                        clearInterval(anim); const d = Math.floor(Math.random()*6)+1; dEl.innerText = ['⚀','⚁','⚂','⚃','⚄','⚅'][d-1];
+                        if((pick==='low'&&d<=3)||(pick==='high'&&d>=4)) { sys.user.money+=bet*2; sys.notif("KAZANDIN", "win"); audio.sfx('win'); } else { sys.notif("KAYBETTİN", "lose"); audio.sfx('lose'); }
+                        sys.updateUI(); sys.isLocked = false; document.getElementById('bet-inp').disabled = false;
+                    }
+                }, 100);
+            },
+            setupScratch: function() {
+                const cost = 50;
+                if(event && event.target && event.target.innerText.includes('YENİ')) {
+                     if(sys.user.money < cost) return sys.notif("Paran Yok!", "lose");
+                     sys.user.money -= cost; sys.updateUI(); sys.addXp(5);
+                }
+                let grid = `<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%;">`;
+                for(let i=0; i<3; i++) grid += `<div class="scratch-card" id="scr-${i}" onclick="sys.logic.checkScratch(${i})"></div>`;
+                grid += `</div><div style="margin-top:10px; color:#aaa; font-size:12px;">Kart Başı: 50 DİNAR</div>`;
+                document.getElementById('game-stage').innerHTML = grid;
+            },
+            checkScratch: function(id) {
+                const el = document.getElementById(`scr-${id}`);
+                if(el.classList.contains('scratched')) return;
+                el.classList.add('scratched'); audio.sfx('click');
+                let r = Math.random(), prize = 0;
+                if(r < 0.50) prize = 0;
+                else if(r < 0.85) prize = 25; else if(r < 0.95) prize = 100; else prize = 500;
+                if(prize > 0) { el.innerText = `${prize} DİNAR`; el.style.color = "#0f0"; sys.user.money += prize; sys.updateUI(); sys.notif(`+${prize}`, "win");
+                } 
+                else { el.innerText = "BOŞ"; el.style.color = "#555"; }
+            },
+            clicker: function() {
+                sys.gameState.clicks++;
+                document.getElementById('clk-cnt').innerText = `${sys.gameState.clicks} / 50`; 
+                audio.sfx('click');
+                if(sys.gameState.clicks >= 50) { 
+                    sys.user.money += 25;
+                    sys.gameState.clicks = 0; 
+                    sys.updateUI(); 
+                    sys.notif("+25 DİNAR", "win"); 
+                    document.getElementById('clk-cnt').innerText = "0";
+                }
+            },
+            rps: function(u) {
+                if(sys.isLocked) return;
+                const bet = parseInt(document.getElementById('bet-inp').value);
+                if(bet > sys.user.money) return sys.notif("Para Yok", "lose");
+                sys.user.money -= bet; sys.addXp(5); sys.isLocked = true;
+                document.getElementById('bet-inp').disabled = true;
+                
+                document.querySelector('.rps-choices').style.display = 'none';
+                const countdownEl = document.getElementById('rps-countdown');
+                const botEl = document.getElementById('rps-bot');
+                const resultEl = document.getElementById('rps-result');
+                countdownEl.style.display = 'block'; resultEl.innerText = '';
+                let count = 3;
+                const countInterval = setInterval(() => {
+                    countdownEl.innerText = count; count--;
+                    if(count < 0) {
+                        clearInterval(countInterval); countdownEl.style.display = 'none';
+                        const userWin = Math.random() < 0.35;
+                        let b = '';
+                        if(userWin) {
+                            if(u === 'r') b = 's'; else if(u === 'p') b = 'r'; 
+                            else b = 'p';
+                        } else {
+                            if(Math.random() < 0.5) b = u;
+                            else { if(u === 'r') b = 'p'; else if(u === 'p') b = 's'; else b = 'r'; }
+                        }
+                        botEl.innerText = {r:'🪨',p:'📄',s:'✂️'}[b];
+                        setTimeout(() => {
+                            if(u===b) { sys.user.money+=bet; resultEl.innerText = "BERABERE!"; sys.notif("BERABERE", "click"); } 
+                            else if((u=='r'&&b=='s')||(u=='p'&&b=='r')||(u=='s'&&b=='p')) { sys.user.money+=bet*2;
+                            resultEl.innerText = "KAZANDIN! x2"; sys.notif("KAZANDIN", "win"); audio.sfx('win'); } 
+                            else { resultEl.innerText = "KAYBETTİN!";
+                            sys.notif("KAYBETTİN", "lose"); audio.sfx('lose'); }
+                            sys.updateUI();
+                            sys.isLocked = false; document.getElementById('bet-inp').disabled = false; document.querySelector('.rps-choices').style.display = 'flex';
+                            setTimeout(() => { resultEl.innerText = ''; botEl.innerText = '🤖'; }, 2000);
+                        }, 500);
+                    }
+                }, 1000);
+            },
+            slotSpin: function(bet) {
+                sys.user.money -= bet;
+                sys.updateUI(); sys.addXp(10); sys.isLocked = true; document.getElementById('btn-action').disabled = true; document.getElementById('bet-inp').disabled = true;
+                let c=0;
+                const syms = ['🍒','🍋','🍉','🍇','💎','7️⃣'];
+                const i = setInterval(()=>{
+                    document.getElementById('s1').innerText=syms[Math.floor(Math.random()*6)]; 
+                    document.getElementById('s2').innerText=syms[Math.floor(Math.random()*6)]; 
+                    document.getElementById('s3').innerText=syms[Math.floor(Math.random()*6)]; 
+                    c++;
+                    if(c>20) {
+                        clearInterval(i); 
+                        const n1=syms[Math.floor(Math.random()*6)], n2=syms[Math.floor(Math.random()*6)], n3=syms[Math.floor(Math.random()*6)];
+                        document.getElementById('s1').innerText=n1; document.getElementById('s2').innerText=n2; document.getElementById('s3').innerText=n3;
+                        if(n1===n2 && n2===n3) { sys.user.money+=bet*20; sys.notif("JACKPOT!", "win"); audio.sfx('win'); } 
+                        else if(n1===n2 || n2===n3 || n1===n3) { sys.user.money+=Math.floor(bet*1.5); sys.notif("İKİLİ!", "win"); audio.sfx('win'); } 
+                        else { sys.notif("KAYBETTİN", "lose"); audio.sfx('lose'); }
+                        sys.updateUI();
+                        sys.isLocked = false; document.getElementById('btn-action').disabled = false; document.getElementById('bet-inp').disabled = false;
+                    }
+                }, 50);
+            },
+            bonanzaSpin: function(bet) {
+                sys.user.money -= bet;
+                sys.updateUI(); sys.addXp(15); sys.isLocked = true;
+                const btn = document.getElementById('btn-action'); btn.disabled = true; document.getElementById('bet-inp').disabled = true;
+                this.bonanzaFill(false); audio.sfx('click');
+                setTimeout(() => {
+                    let r = Math.random(), win = 0;
+                    if(r < 0.25) win = 0; 
+                    else if(r < 0.60) win = Math.floor(bet * 0.8); 
+                    else if(r < 0.85) win = Math.floor(bet * 2); 
+                    else if(r < 0.95) win = Math.floor(bet * 10); 
+                    else win = Math.floor(bet * 50);
+
+                    const msg = document.getElementById('bonanza-msg');
+                    if(win > 0) { 
+                        sys.user.money += win; msg.innerText = `KAZANÇ: ${win} DİNAR`; sys.notif(`BONANZA! +${win}`, "win"); audio.sfx('win'); 
+                        document.querySelectorAll('.bonanza-cell').forEach(c => { if(Math.random()>0.5) { c.style.opacity = 0; c.style.transform = "scale(0)"; } }); 
+                    } 
+                    else { msg.innerText = "KAZANÇ YOK"; sys.notif("KAYBETTİN", "lose"); }
+                    sys.isLocked = false; btn.disabled = false; document.getElementById('bet-inp').disabled = false;
+                    sys.updateUI();
+                }, 1500);
+            },
+            bonanzaFill: function(empty) {
+                const grid = document.getElementById('bonanza-grid');
+                grid.innerHTML = '';
+                const items = ['🍌','🍇','🍉','🍑','🍎','💣','🍭'];
+                for(let i=0; i<30; i++) { const cell = document.createElement('div'); cell.className = 'bonanza-cell';
+                if(!empty) cell.innerText = items[Math.floor(Math.random()*items.length)]; grid.appendChild(cell); }
+            }
+        }
+    };
+</script>
+</body>
+</html>
